@@ -53,6 +53,9 @@ def generate_samples():
     
     # Add enhanced data for demonstration
     for i, business in enumerate(scraper.scraped_data):
+        # Generate Google Maps link for each business
+        business['google_maps_link'] = scraper.generate_maps_link(business)
+        
         business.update({
             'lead_score': [85, 78, 72][i],
             'priority_level': ['🔥 ULTRA HIGH', '⚡ HIGH', '⚡ HIGH'][i],

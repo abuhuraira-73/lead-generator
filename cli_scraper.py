@@ -248,9 +248,10 @@ class CLIGoogleMapsScraper:
             if i >= max_results:
                 break
                 
-            # Add timestamp and category
+            # Add timestamp, category, and Google Maps link
             business['scraped_at'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             business['category'] = self.get_category(business['name'])
+            business['google_maps_link'] = self.generate_maps_link(business)
             
             self.scraped_data.append(business)
             
@@ -281,6 +282,24 @@ class CLIGoogleMapsScraper:
             return 'Shop'
         else:
             return 'Business'
+    
+    def generate_maps_link(self, business):
+        """Generate Google Maps link for the business"""
+        import urllib.parse
+        
+        name = business.get('name', '')
+        address = business.get('address', '')
+        
+        # Create search query combining name and address
+        search_query = f"{name}, {address}"
+        
+        # URL encode the search query
+        encoded_query = urllib.parse.quote(search_query)
+        
+        # Generate Google Maps search URL
+        maps_link = f"https://www.google.com/maps/search/?api=1&query={encoded_query}"
+        
+        return maps_link
     
     def calculate_lead_score(self, business):
         """Calculate lead priority score (1-100)"""

@@ -1,7 +1,7 @@
 {
   "export_info": {
     "total_records": 3,
-    "export_timestamp": "2025-08-11T14:17:16.459074",
+    "export_timestamp": "2025-08-11T14:29:12.059264",
     "enhanced": true
   },
   "businesses": [
@@ -17,6 +17,7 @@
       "established": "1978",
       "scraped_at": "2025-01-11 08:45:54",
       "category": "Medical",
+      "google_maps_link": "https://www.google.com/maps/search/?api=1&query=Lilavati%20Hospital%2C%20A-791%2C%20Bandra%20Reclamation%2C%20Bandra%20West%2C%20Mumbai%20400050",
       "lead_score": 85,
       "priority_level": "🔥 ULTRA HIGH",
       "instagram": "@lilavatihospital",
@@ -37,6 +38,7 @@
       "established": "2008",
       "scraped_at": "2025-01-11 08:45:55",
       "category": "Restaurant",
+      "google_maps_link": "https://www.google.com/maps/search/?api=1&query=Trishna%20Restaurant%2C%207%2C%20Sai%20Baba%20Marg%2C%20Kala%20Ghoda%2C%20Fort%2C%20Mumbai%20400001",
       "lead_score": 78,
       "priority_level": "⚡ HIGH",
       "instagram": "@trishnaindia",
@@ -57,6 +59,7 @@
       "established": "2003",
       "scraped_at": "2025-01-11 08:45:56",
       "category": "Fitness",
+      "google_maps_link": "https://www.google.com/maps/search/?api=1&query=Gold%27s%20Gym%20Bandra%2C%20Linking%20Road%2C%20Bandra%20West%2C%20Mumbai%20400050",
       "lead_score": 72,
       "priority_level": "⚡ HIGH",
       "instagram": "@goldsgym_bandra",
