@@ -1,0 +1,69 @@
+{
+  "export_info": {
+    "total_records": 3,
+    "export_timestamp": "2025-08-11T14:17:16.459074",
+    "enhanced": true
+  },
+  "businesses": [
+    {
+      "name": "Lilavati Hospital",
+      "phone": "+91-22-2675-1000",
+      "address": "A-791, Bandra Reclamation, Bandra West, Mumbai 400050",
+      "rating": "4.5",
+      "website": "lilavatihospital.com",
+      "email": "info@lilavatihospital.com",
+      "timing": "24/7",
+      "services": "Multi-specialty Hospital, Emergency Care",
+      "established": "1978",
+      "scraped_at": "2025-01-11 08:45:54",
+      "category": "Medical",
+      "lead_score": 85,
+      "priority_level": "🔥 ULTRA HIGH",
+      "instagram": "@lilavatihospital",
+      "facebook": "fb.com/lilavatihospital",
+      "whatsapp_business": "+91 22 2675 1000",
+      "owner_manager": "Dr. Sharma",
+      "social_opportunities": "Social media revival opportunity!"
+    },
+    {
+      "name": "Trishna Restaurant",
+      "phone": "+91-22-2270-3213",
+      "address": "7, Sai Baba Marg, Kala Ghoda, Fort, Mumbai 400001",
+      "rating": "4.6",
+      "website": "trishnaindia.com",
+      "email": "info@trishnaindia.com",
+      "timing": "12:00 PM - 3:30 PM, 7:00 PM - 11:30 PM",
+      "services": "Seafood, Contemporary Indian",
+      "established": "2008",
+      "scraped_at": "2025-01-11 08:45:55",
+      "category": "Restaurant",
+      "lead_score": 78,
+      "priority_level": "⚡ HIGH",
+      "instagram": "@trishnaindia",
+      "facebook": "fb.com/trishnaindia",
+      "whatsapp_business": "+91 22 2270 3213",
+      "owner_manager": "Mr. Patel",
+      "social_opportunities": "Already active - collaboration opportunity!"
+    },
+    {
+      "name": "Gold's Gym Bandra",
+      "phone": "+91-22-2640-8888",
+      "address": "Linking Road, Bandra West, Mumbai 400050",
+      "rating": "4.4",
+      "website": "goldsgym.in",
+      "email": "bandra@goldsgym.in",
+      "timing": "5:30 AM - 11:30 PM",
+      "services": "Premium Fitness, Personal Training",
+      "established": "2003",
+      "scraped_at": "2025-01-11 08:45:56",
+      "category": "Fitness",
+      "lead_score": 72,
+      "priority_level": "⚡ HIGH",
+      "instagram": "@goldsgym_bandra",
+      "facebook": "fb.com/goldsgym",
+      "whatsapp_business": "+91 22 2640 8888",
+      "owner_manager": "Ms. Singh",
+      "social_opportunities": "No Instagram presence - setup opportunity!"
+    }
+  ]
+}
