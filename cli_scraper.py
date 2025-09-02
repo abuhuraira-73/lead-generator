@@ -11,6 +11,16 @@ import sys
 import random
 import re
 import json
+import requests
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+import requests
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 
 class CLIGoogleMapsScraper:
     def __init__(self):
@@ -56,167 +66,69 @@ class CLIGoogleMapsScraper:
         else:
             return 'mumbai'  # default to mumbai instead of delhi
     
-    def get_business_data(self, location, business_type):
-        """Get comprehensive business data for all India locations and types"""
-        
-        # MEDICAL DATA - Doctors/Hospitals
-        if business_type == 'medical':
-            if location == 'mumbai':
-                return [
-                    {"name": "Lilavati Hospital", "phone": "+91-22-2675-1000", "address": "A-791, Bandra Reclamation, Bandra West, Mumbai 400050", "rating": "4.5", "website": "lilavatihospital.com", "email": "info@lilavatihospital.com", "timing": "24/7", "services": "Multi-specialty Hospital, Emergency Care", "established": "1978"},
-                    {"name": "Kokilaben Dhirubhai Ambani Hospital", "phone": "+91-22-3099-9999", "address": "Rao Saheb Achutrao Patwardhan Marg, Four Bungalows, Andheri West, Mumbai 400053", "rating": "4.6", "website": "kokilabenhospital.com", "email": "info@kokilabenhospital.com", "timing": "24/7", "services": "Multi-specialty, Robotics Surgery", "established": "2009"},
-                    {"name": "Breach Candy Hospital", "phone": "+91-22-2366-7888", "address": "60 A, Bhulabhai Desai Road, Breach Candy, Mumbai 400026", "rating": "4.7", "website": "breachcandyhospital.org", "email": "info@breachcandyhospital.org", "timing": "24/7", "services": "Premium Healthcare, VIP Care", "established": "1950"},
-                    {"name": "Tata Memorial Hospital", "phone": "+91-22-2417-7000", "address": "Dr Ernest Borges Road, Parel, Mumbai 400012", "rating": "4.5", "website": "tmc.gov.in", "email": "msoffice@tmc.gov.in", "timing": "24/7", "services": "Cancer Treatment, Research", "established": "1941"},
-                    {"name": "Hinduja Hospital", "phone": "+91-22-6751-0000", "address": "Veer Savarkar Marg, Mahim, Mumbai 400016", "rating": "4.6", "website": "hindujahospital.com", "email": "info@hindujahospital.com", "timing": "24/7", "services": "Premium Healthcare, All Specialties", "established": "1951"},
-                    {"name": "Asian Heart Institute", "phone": "+91-22-6698-9999", "address": "G/N Block, Bandra Kurla Complex, Bandra East, Mumbai 400051", "rating": "4.6", "website": "asianheartinstitute.org", "email": "info@asianheartinstitute.org", "timing": "24/7", "services": "Heart Surgery, Cardiac Care", "established": "2002"},
-                    {"name": "Sir H. N. Reliance Foundation Hospital", "phone": "+91-22-6673-1000", "address": "Raja Ram Mohan Roy Road, Prarthana Samaj, Girgaum, Mumbai 400004", "rating": "4.7", "website": "rfhospital.org", "email": "contactus@rfhospital.org", "timing": "24/7", "services": "Premium Healthcare, All Specialties", "established": "2014"},
-                    {"name": "Jaslok Hospital", "phone": "+91-22-6657-3333", "address": "15, Dr. Deshmukh Marg, Pedder Road, Mumbai 400026", "rating": "4.4", "website": "jaslokhospital.net", "email": "info@jaslokhospital.net", "timing": "24/7", "services": "Multi-specialty, Heart Care, Cancer", "established": "1973"},
-                    {"name": "Fortis Hospital Mulund", "phone": "+91-22-6799-9999", "address": "Mulund Goregaon Link Road, Mulund West, Mumbai 400078", "rating": "4.3", "website": "fortishealthcare.com", "email": "enquiries@fortishealthcare.com", "timing": "24/7", "services": "Cardiac Care, Orthopedics, Neurology", "established": "2002"},
-                    {"name": "Jupiter Hospital Thane", "phone": "+91-22-6771-7400", "address": "Eastern Express Highway, Thane West, Mumbai 400601", "rating": "4.4", "website": "jupiterhospital.com", "email": "info@jupiterhospital.com", "timing": "24/7", "services": "Multi-specialty, Transplants", "established": "2007"},
-                    {"name": "Global Hospital Parel", "phone": "+91-22-6767-0101", "address": "35, Dr. E. Borges Road, Parel, Mumbai 400012", "rating": "4.4", "website": "globalhospitalsindia.com", "email": "info@globalhospitalsindia.com", "timing": "24/7", "services": "Liver Transplant, Multi-specialty", "established": "2009"},
-                    {"name": "Bombay Hospital", "phone": "+91-22-2067-7777", "address": "12, Marine Lines, Mumbai 400020", "rating": "4.1", "website": "bombayhospital.com", "email": "info@bombayhospital.com", "timing": "24/7", "services": "Multi-specialty, Cardiology", "established": "1952"},
-                    {"name": "KEM Hospital", "phone": "+91-22-2410-7000", "address": "Acharya Donde Marg, Parel, Mumbai 400012", "rating": "4.2", "website": "kem.edu", "email": "dean@kem.edu", "timing": "24/7", "services": "Teaching Hospital, All Departments", "established": "1926"},
-                    {"name": "Nanavati Super Speciality Hospital", "phone": "+91-22-2626-7500", "address": "S.V. Road, Vile Parle West, Mumbai 400056", "rating": "4.2", "website": "nanavatihospital.org", "email": "info@nanavatihospital.org", "timing": "24/7", "services": "Super Specialty Care, Cancer Treatment", "established": "1950"},
-                    {"name": "Wockhardt Hospital", "phone": "+91-22-2653-6666", "address": "1877, Dr. Anand Rao Nair Road, Mumbai Central, Mumbai 400011", "rating": "4.3", "website": "wockhardthospitals.com", "email": "enquiries@wockhardthospitals.com", "timing": "24/7", "services": "Heart Surgery, Transplants", "established": "1989"},
-                    {"name": "SRCC Children's Hospital", "phone": "+91-22-7122-2333", "address": "1-1A, Haji Ali Park, Mahalaxmi, Mumbai 400034", "rating": "4.5", "website": "srccchildrenshospital.com", "email": "info@srccchildrenshospital.com", "timing": "24/7", "services": "Pediatric Care, Child Surgery", "established": "2016"},
-                    {"name": "Saifee Hospital", "phone": "+91-22-6757-0111", "address": "15/17, Maharshi Karve Road, Charni Road, Mumbai 400004", "rating": "4.3", "website": "saifeehospital.com", "email": "info@saifeehospital.com", "timing": "24/7", "services": "Bariatric Surgery, Cardiology", "established": "2005"},
-                    {"name": "Seven Hills Hospital", "phone": "+91-22-6735-5000", "address": "Marol Maroshi Road, Andheri East, Mumbai 400059", "rating": "4.2", "website": "sevenhillshospital.com", "email": "info@sevenhillshospital.com", "timing": "24/7", "services": "Multi-specialty, Maternity", "established": "2010"},
-                    {"name": "Holy Family Hospital", "phone": "+91-22-2645-3000", "address": "St. Andrews Road, Bandra West, Mumbai 400050", "rating": "4.0", "website": "holyfamilyhospital.in", "email": "info@holyfamilyhospital.in", "timing": "24/7", "services": "General Medicine, Maternity", "established": "1942"},
-                    {"name": "Bhatia Hospital", "phone": "+91-22-6777-1000", "address": "Tardeo Road, Grant Road, Mumbai 400007", "rating": "4.1", "website": "bhatiahospital.org", "email": "info@bhatiahospital.org", "timing": "24/7", "services": "General Medicine, Surgery", "established": "1932"},
-                    {"name": "SL Raheja Hospital", "phone": "+91-22-6652-9999", "address": "Raheja Marg, Mahim, Mumbai 400016", "rating": "4.3", "website": "slrahahospital.com", "email": "info@slrahahospital.com", "timing": "24/7", "services": "Diabetes Care, Endocrinology", "established": "1981"},
-                    {"name": "Prince Aly Khan Hospital", "phone": "+91-22-2642-2222", "address": "Aga Hall, Nesbit Road, Mazagaon, Mumbai 400010", "rating": "4.0", "website": "pakhospital.org", "email": "info@pakhospital.org", "timing": "24/7", "services": "General Medicine, Surgery", "established": "1950"},
-                    {"name": "Sushrusha Hospital", "phone": "+91-22-2383-4116", "address": "Ranade Road, Dadar West, Mumbai 400028", "rating": "4.0", "website": "sushrusha.org", "email": "info@sushrusha.org", "timing": "24/7", "services": "General Medicine, Surgery", "established": "1966"},
-                    {"name": "Masina Hospital", "phone": "+91-22-2307-0599", "address": "Sant Savata Marg, Byculla East, Mumbai 400027", "rating": "4.0", "website": "masinahospital.com", "email": "info@masinahospital.com", "timing": "24/7", "services": "Psychiatry, General Medicine", "established": "1902"},
-                    {"name": "Apex Hospitals", "phone": "+91-22-2648-9888", "address": "Borivali West, Mumbai 400092", "rating": "4.1", "website": "apexhospitals.in", "email": "info@apexhospitals.in", "timing": "24/7", "services": "General Medicine, Emergency", "established": "1998"},
-                    {"name": "MGM Hospital Navi Mumbai", "phone": "+91-22-2756-9343", "address": "Sector 1, Vashi, Navi Mumbai 400703", "rating": "4.0", "website": "mgmmumbai.ac.in", "email": "info@mgmmumbai.ac.in", "timing": "24/7", "services": "Teaching Hospital, Surgery", "established": "1989"},
-                    {"name": "Surana Hospital", "phone": "+91-22-6768-8888", "address": "LBS Marg, Kurla West, Mumbai 400070", "rating": "3.9", "website": "suranahospital.com", "email": "info@suranahospital.com", "timing": "24/7", "services": "General Medicine, Orthopedics", "established": "1985"},
-                    {"name": "Lokmanya Tilak Municipal General Hospital", "phone": "+91-22-2407-6381", "address": "Sion, Mumbai 400022", "rating": "4.0", "website": "ltmgh.com", "email": "dean.ltmgh@mcgm.gov.in", "timing": "24/7", "services": "General Medicine, Trauma Care", "established": "1947"},
-                    {"name": "Criticare Hospital", "phone": "+91-22-2570-6666", "address": "Plot No 313, Central Avenue Road, Andheri East, Mumbai 400069", "rating": "4.1", "website": "criticarehospital.com", "email": "info@criticarehospital.com", "timing": "24/7", "services": "ICU, Emergency Care", "established": "2000"},
-                    {"name": "Hiranandani Hospital Powai", "phone": "+91-22-2576-3300", "address": "Hill Side Avenue, Hiranandani Gardens, Powai, Mumbai 400076", "rating": "4.4", "website": "hiranandanihospital.org", "email": "info@hiranandanihospital.org", "timing": "24/7", "services": "General Surgery, Maternity, Pediatrics", "established": "2004"}
-                ]
-            
-            elif location == 'kolkata':
-                return [
-                    {"name": "Apollo Gleneagles Hospital", "phone": "+91-33-2320-3040", "address": "58, Canal Circular Rd, Kadapara, Kolkata 700054", "rating": "4.4", "website": "apollohospitals.com", "email": "info@apollogleneagles.com", "timing": "24/7", "services": "Multi-specialty Hospital, Emergency Care", "established": "1996"},
-                    {"name": "AMRI Hospital Salt Lake", "phone": "+91-33-6680-8000", "address": "JC - 16 & 17, Sector III, Salt Lake City, Kolkata 700098", "rating": "4.2", "website": "amrihospitals.in", "email": "contact@amrihospitals.in", "timing": "24/7", "services": "Cardiology, Oncology, Neurology", "established": "1996"},
-                    {"name": "Belle Vue Clinic", "phone": "+91-33-2287-2321", "address": "9, Dr U N Brahmachari St, Kolkata 700017", "rating": "4.3", "website": "bellevueclinic.com", "email": "info@bellevueclinic.com", "timing": "24/7", "services": "General Medicine, Surgery, ICU", "established": "1932"},
-                    {"name": "Fortis Hospital", "phone": "+91-33-6628-4444", "address": "730, Anandapur, EM Bypass Rd, Kolkata 700107", "rating": "4.5", "website": "fortishealthcare.com", "email": "kolkata@fortishealthcare.com", "timing": "24/7", "services": "Heart Surgery, Cancer Care, Orthopedics", "established": "2007"},
-                    {"name": "Tata Medical Center", "phone": "+91-33-6605-4333", "address": "14 MAR (E-W), New Town, Rajarhat, Kolkata 700160", "rating": "4.6", "website": "tatamedicalcenter.com", "email": "info@tmckolkata.com", "timing": "24/7", "services": "Cancer Treatment, Research", "established": "2011"},
-                    {"name": "BM Birla Heart Research Centre", "phone": "+91-33-2456-6321", "address": "1/1, National Library Ave, Kolkata 700027", "rating": "4.6", "website": "birlaheart.com", "email": "info@birlaheart.com", "timing": "24/7", "services": "Heart Surgery, Research", "established": "1981"},
-                    {"name": "Medica Superspecialty Hospital", "phone": "+91-33-6652-0000", "address": "127, Mukundapur, EM Bypass, Kolkata 700099", "rating": "4.5", "website": "medicahospitals.in", "email": "info@medicahospitals.in", "timing": "24/7", "services": "Super-specialty, Research", "established": "2009"},
-                    {"name": "Ruby General Hospital", "phone": "+91-33-3987-4444", "address": "16/2, Alipore Rd, Kolkata 700027", "rating": "4.0", "website": "rubyhospital.in", "email": "contact@rubyhospital.in", "timing": "24/7", "services": "Emergency, Surgery, Maternity", "established": "1992"},
-                    {"name": "Rabindranath Tagore International Institute of Cardiac Sciences", "phone": "+91-33-4040-8822", "address": "124, Mukundapur, EM Bypass, Kolkata 700099", "rating": "4.5", "website": "narayanahealth.org", "email": "info@narayanahealth.org", "timing": "24/7", "services": "Cardiac Surgery, Heart Care", "established": "2000"},
-                    {"name": "Manipal Hospital", "phone": "+91-33-6620-3040", "address": "230, Barakhola Lane, Purba Putiary, Kolkata 700099", "rating": "4.4", "website": "manipalhospitals.com", "email": "kolkata@manipalhospitals.com", "timing": "24/7", "services": "Multi-specialty, Emergency", "established": "2009"},
-                    {"name": "Medical College Hospital", "phone": "+91-33-2241-3326", "address": "88, College St, Kolkata 700073", "rating": "4.2", "website": "mchkolkata.gov.in", "email": "dean@mchkolkata.gov.in", "timing": "24/7", "services": "Teaching Hospital, All Specialties", "established": "1835"},
-                    {"name": "SSKM Hospital", "phone": "+91-33-2241-5445", "address": "244, AJC Bose Rd, Kolkata 700020", "rating": "4.0", "website": "ipgmer.gov.in", "email": "director@ipgmer.gov.in", "timing": "24/7", "services": "Government Hospital, All Departments", "established": "1916"},
-                    {"name": "Peerless Hospital", "phone": "+91-33-4011-4000", "address": "360, Panchasayar, Garia, Kolkata 700094", "rating": "4.1", "website": "peerlesshospital.com", "email": "contact@peerlesshospital.com", "timing": "24/7", "services": "Multi-specialty, Emergency", "established": "2005"},
-                    {"name": "Woodlands Multispeciality Hospital", "phone": "+91-33-4011-1222", "address": "8/5, Alipore Rd, Kolkata 700027", "rating": "4.4", "website": "woodlandshospital.in", "email": "info@woodlandshospital.in", "timing": "24/7", "services": "Cardiology, Neurology, Oncology", "established": "2002"},
-                    {"name": "ILS Hospital", "phone": "+91-33-4040-5000", "address": "DD-6, Salt Lake City, Sector-1, Kolkata 700064", "rating": "4.2", "website": "ilshospital.com", "email": "contact@ilshospital.com", "timing": "24/7", "services": "Cardiac Care, Neurology", "established": "2003"}
-                ]
-        
-        # RESTAURANT/FOOD DATA
-        elif business_type == 'restaurant':
-            if location == 'mumbai':
-                return [
-                    {"name": "Trishna", "phone": "+91-22-2270-3213", "address": "7, Sai Baba Marg, Kala Ghoda, Fort, Mumbai 400001", "rating": "4.6", "website": "trishnaindia.com", "email": "info@trishnaindia.com", "timing": "12:00 PM - 3:30 PM, 7:00 PM - 11:30 PM", "services": "Seafood, Contemporary Indian", "established": "2008"},
-                    {"name": "Indian Accent Mumbai", "phone": "+91-22-6117-1234", "address": "The St. Regis Mumbai, 462, Senapati Bapat Marg, Lower Parel, Mumbai 400013", "rating": "4.5", "website": "indianaccent.com", "email": "mumbai@indianaccent.com", "timing": "12:30 PM - 2:30 PM, 7:00 PM - 11:30 PM", "services": "Modern Indian Cuisine", "established": "2017"},
-                    {"name": "Khyber Restaurant", "phone": "+91-22-4039-4444", "address": "145, MG Road, Fort, Mumbai 400001", "rating": "4.2", "website": "khyberrestaurant.com", "email": "info@khyberrestaurant.com", "timing": "12:00 PM - 3:30 PM, 7:30 PM - 11:30 PM", "services": "North Indian, Tandoor", "established": "1958"},
-                    {"name": "Bombay Canteen", "phone": "+91-22-4966-6666", "address": "Kamala Mills, Lower Parel, Mumbai 400013", "rating": "4.4", "website": "thebombaycanteen.com", "email": "hello@thebombaycanteen.com", "timing": "12:00 PM - 1:00 AM", "services": "Modern Indian, Cocktails", "established": "2015"},
-                    {"name": "Wasabi by Morimoto", "phone": "+91-22-6693-4000", "address": "Taj Mahal Palace, Colaba, Mumbai 400001", "rating": "4.7", "website": "tajhotels.com", "email": "wasabi.mumbai@tajhotels.com", "timing": "7:00 PM - 11:30 PM", "services": "Japanese Cuisine, Sushi", "established": "2001"},
-                    {"name": "Leopold Cafe", "phone": "+91-22-2202-0131", "address": "Causeway, Colaba, Mumbai 400001", "rating": "4.2", "website": "leopoldcafe.com", "email": "info@leopoldcafe.com", "timing": "8:00 AM - 12:30 AM", "services": "Continental Food, Beer", "established": "1871"},
-                    {"name": "Britannia & Co", "phone": "+91-22-2261-5264", "address": "Wakefield House, Fort, Mumbai 400001", "rating": "4.3", "website": "N/A", "email": "N/A", "timing": "11:30 AM - 4:00 PM", "services": "Parsi Cuisine, Traditional", "established": "1923"},
-                    {"name": "The Table", "phone": "+91-22-2605-9999", "address": "Linking Road, Bandra West, Mumbai 400050", "rating": "4.6", "website": "thetable.co.in", "email": "info@thetable.co.in", "timing": "12:00 PM - 1:00 AM", "services": "European, Contemporary", "established": "2011"},
-                    {"name": "Bastian", "phone": "+91-22-2640-9999", "address": "New Kamal Building, Bandra West, Mumbai 400050", "rating": "4.4", "website": "bastianmumbai.com", "email": "info@bastianmumbai.com", "timing": "12:00 PM - 1:00 AM", "services": "Seafood, Mediterranean", "established": "2016"},
-                    {"name": "Yauatcha Mumbai", "phone": "+91-22-6708-4444", "address": "Raheja Tower, BKC, Mumbai 400051", "rating": "4.5", "website": "yauatcha.com", "email": "mumbai@yauatcha.com", "timing": "12:00 PM - 1:00 AM", "services": "Chinese, Dim Sum", "established": "2011"}
-                ]
-            elif location == 'kolkata':
-                return [
-                    {"name": "Peter Cat", "phone": "+91-33-2229-8841", "address": "18A, Park Street, Kolkata 700016", "rating": "4.3", "website": "N/A", "email": "N/A", "timing": "11:30 AM - 11:30 PM", "services": "Continental, Chelo Kebab", "established": "1975"},
-                    {"name": "Oh! Calcutta", "phone": "+91-33-4068-3192", "address": "Forum Mall, Elgin Road, Kolkata 700020", "rating": "4.4", "website": "speciality.oberoi.com", "email": "ohcalcutta@oberoigroup.com", "timing": "12:30 PM - 3:00 PM, 7:30 PM - 11:00 PM", "services": "Bengali Cuisine", "established": "1969"},
-                    {"name": "6 Ballygunge Place", "phone": "+91-33-2460-5922", "address": "6, Ballygunge Place, Kolkata 700019", "rating": "4.3", "website": "6ballygungeplace.com", "email": "info@6ballygungeplace.com", "timing": "12:00 PM - 3:30 PM, 7:00 PM - 10:30 PM", "services": "Bengali Home Food", "established": "1985"},
-                    {"name": "Arsalan", "phone": "+91-33-2287-9876", "address": "Park Circus, Kolkata 700017", "rating": "4.5", "website": "arsalanrestaurant.com", "email": "info@arsalanrestaurant.com", "timing": "11:00 AM - 11:00 PM", "services": "Biryani, Mughlai", "established": "1964"},
-                    {"name": "Kewpie's Kitchen", "phone": "+91-33-2463-4321", "address": "2, Elgin Lane, Kolkata 700020", "rating": "4.4", "website": "N/A", "email": "N/A", "timing": "12:00 PM - 2:30 PM, 7:30 PM - 10:30 PM", "services": "Bengali Home Cooking", "established": "1990"},
-                    {"name": "Bhojohori Manna", "phone": "+91-33-2287-5432", "address": "Shyama Charan Street, Kolkata 700004", "rating": "4.2", "website": "bhojohori.com", "email": "info@bhojohori.com", "timing": "11:00 AM - 10:30 PM", "services": "Bengali Cuisine", "established": "1976"},
-                    {"name": "Koshe Kosha", "phone": "+91-33-4068-6789", "address": "Hindustan Road, Kolkata 700029", "rating": "4.3", "website": "N/A", "email": "N/A", "timing": "12:00 PM - 10:00 PM", "services": "Bengali Fish Curry", "established": "2008"},
-                    {"name": "Mocambo", "phone": "+91-33-2229-9630", "address": "25B, Park Street, Kolkata 700016", "rating": "4.1", "website": "N/A", "email": "N/A", "timing": "11:00 AM - 11:30 PM", "services": "Continental, Chinese", "established": "1956"},
-                    {"name": "Flurys", "phone": "+91-33-2229-7664", "address": "18, Park St, Kolkata 700016", "rating": "4.2", "website": "flurys.net", "email": "info@flurys.net", "timing": "7:30 AM - 10:00 PM", "services": "Continental, Pastries", "established": "1927"},
-                    {"name": "Shiraz Golden Restaurant", "phone": "+91-33-2217-6748", "address": "149, Park Street, Kolkata 700017", "rating": "4.0", "website": "N/A", "email": "N/A", "timing": "11:30 AM - 11:30 PM", "services": "North Indian, Biryani", "established": "1970"}
-                ]
-        
-        # FITNESS/GYM DATA
-        elif business_type == 'fitness':
-            if location == 'kolkata':
-                return [
-                    {"name": "Gold's Gym Park Street", "phone": "+91-33-2229-8888", "address": "30A, Park Street, Kolkata 700016", "rating": "4.3", "website": "goldsgym.in", "email": "kolkata@goldsgym.in", "timing": "5:30 AM - 11:00 PM", "services": "Weight Training, Cardio, Personal Training", "established": "2005"},
-                    {"name": "Fitness First Salt Lake", "phone": "+91-33-4068-7777", "address": "City Centre II, Salt Lake, Kolkata 700091", "rating": "4.2", "website": "fitnessfirst.co.in", "email": "saltlake@fitnessfirst.co.in", "timing": "6:00 AM - 11:00 PM", "services": "CrossFit, Yoga, Swimming", "established": "2008"},
-                    {"name": "Anytime Fitness Kolkata", "phone": "+91-33-6630-9999", "address": "South City Mall, Kolkata 700068", "rating": "4.4", "website": "anytimefitness.co.in", "email": "kolkata@anytimefitness.co.in", "timing": "24/7", "services": "24/7 Access, Personal Training", "established": "2012"},
-                    {"name": "Snap Fitness Ballygunge", "phone": "+91-33-2460-8888", "address": "Ballygunge Circular Road, Kolkata 700019", "rating": "4.1", "website": "snapfitness.com", "email": "ballygunge@snapfitness.com", "timing": "24/7", "services": "Functional Training, Group Classes", "established": "2015"},
-                    {"name": "The Gym Health Planet", "phone": "+91-33-2287-6666", "address": "Rashbehari Avenue, Kolkata 700029", "rating": "4.0", "website": "healthplanet.in", "email": "kolkata@healthplanet.in", "timing": "6:00 AM - 10:30 PM", "services": "Weight Training, Zumba, Aerobics", "established": "2010"},
-                    {"name": "Cuts & Curves Gym", "phone": "+91-33-2463-5555", "address": "Gariahat Road, Kolkata 700031", "rating": "3.9", "website": "cutsandcurves.com", "email": "kolkata@cutsandcurves.com", "timing": "6:00 AM - 10:00 PM", "services": "Ladies Only, Fitness Classes", "established": "2007"},
-                    {"name": "O2 Spa & Gym", "phone": "+91-33-4068-2222", "address": "Forum Mall, Elgin Road, Kolkata 700020", "rating": "4.2", "website": "o2spa.in", "email": "kolkata@o2spa.in", "timing": "7:00 AM - 10:00 PM", "services": "Spa, Gym, Wellness", "established": "2011"},
-                    {"name": "Powerhouse Gym", "phone": "+91-33-2287-3333", "address": "Camac Street, Kolkata 700017", "rating": "4.3", "website": "powerhousegym.com", "email": "kolkata@powerhousegym.com", "timing": "5:30 AM - 11:30 PM", "services": "Bodybuilding, Powerlifting", "established": "2006"},
-                    {"name": "Talwalkars Gym", "phone": "+91-33-2460-7777", "address": "Southern Avenue, Kolkata 700029", "rating": "4.1", "website": "talwalkars.com", "email": "kolkata@talwalkars.com", "timing": "6:00 AM - 10:30 PM", "services": "Fitness Training, Nutrition", "established": "2009"},
-                    {"name": "Celebrity Fitness", "phone": "+91-33-4068-4444", "address": "City Centre, Salt Lake, Kolkata 700064", "rating": "4.0", "website": "celebrityfitness.com", "email": "saltlake@celebrityfitness.com", "timing": "6:00 AM - 11:00 PM", "services": "Group Classes, Personal Training", "established": "2013"},
-                    {"name": "Iron Gym", "phone": "+91-33-2229-5555", "address": "Esplanade, Kolkata 700013", "rating": "3.8", "website": "N/A", "email": "N/A", "timing": "6:00 AM - 10:00 PM", "services": "Basic Weight Training", "established": "1998"},
-                    {"name": "Fitness Point", "phone": "+91-33-2463-9999", "address": "Lake Market, Kolkata 700029", "rating": "3.7", "website": "N/A", "email": "N/A", "timing": "6:30 AM - 9:30 PM", "services": "Local Gym, Cardio", "established": "2003"},
-                    {"name": "Muscle Factory", "phone": "+91-33-2287-1111", "address": "Theatre Road, Kolkata 700017", "rating": "4.2", "website": "N/A", "email": "N/A", "timing": "5:30 AM - 10:30 PM", "services": "Strength Training, CrossFit", "established": "2008"},
-                    {"name": "Body Fuel Gym", "phone": "+91-33-4068-1111", "address": "Hindustan Road, Kolkata 700029", "rating": "4.0", "website": "bodyfuelgym.com", "email": "kolkata@bodyfuelgym.com", "timing": "6:00 AM - 10:00 PM", "services": "Functional Training, Nutrition", "established": "2014"},
-                    {"name": "Fitness Hub", "phone": "+91-33-2460-2222", "address": "Rashbehari Avenue, Kolkata 700019", "rating": "3.9", "website": "N/A", "email": "N/A", "timing": "6:00 AM - 9:30 PM", "services": "Weight Training, Yoga", "established": "2005"},
-                    {"name": "Peak Fitness", "phone": "+91-33-2287-8888", "address": "Park Circus, Kolkata 700017", "rating": "4.1", "website": "peakfitness.in", "email": "kolkata@peakfitness.in", "timing": "6:00 AM - 10:30 PM", "services": "HIIT, Strength Training", "established": "2012"},
-                    {"name": "Body Art Fitness", "phone": "+91-33-2463-7777", "address": "Ballygunge Circular Road, Kolkata 700019", "rating": "4.2", "website": "bodyartfitness.com", "email": "kolkata@bodyartfitness.com", "timing": "6:30 AM - 10:00 PM", "services": "Pilates, Yoga, Dance", "established": "2011"},
-                    {"name": "Iron Paradise", "phone": "+91-33-4068-5555", "address": "Salt Lake Stadium Area, Kolkata 700098", "rating": "4.3", "website": "N/A", "email": "N/A", "timing": "5:30 AM - 11:00 PM", "services": "Hardcore Training, Bodybuilding", "established": "2007"},
-                    {"name": "Flex Gym", "phone": "+91-33-2229-3333", "address": "College Street, Kolkata 700073", "rating": "3.8", "website": "N/A", "email": "N/A", "timing": "6:00 AM - 9:30 PM", "services": "Student Discount, Basic Training", "established": "2004"},
-                    {"name": "The Fitness Lounge", "phone": "+91-33-2460-6666", "address": "Gariahat Road, Kolkata 700019", "rating": "4.1", "website": "fitnesslounge.in", "email": "kolkata@fitnesslounge.in", "timing": "6:00 AM - 10:30 PM", "services": "Premium Fitness, Spa", "established": "2013"},
-                    {"name": "Steel Gym", "phone": "+91-33-2287-4444", "address": "Mirza Ghalib Street, Kolkata 700016", "rating": "3.9", "website": "N/A", "email": "N/A", "timing": "6:00 AM - 10:00 PM", "services": "Traditional Bodybuilding", "established": "2001"},
-                    {"name": "Fitness Zone", "phone": "+91-33-4068-9999", "address": "Acropolis Mall, Rajdanga, Kolkata 700107", "rating": "4.0", "website": "fitnesszone.in", "email": "kolkata@fitnesszone.in", "timing": "6:00 AM - 11:00 PM", "services": "Modern Equipment, Group Classes", "established": "2015"},
-                    {"name": "Alpha Fitness", "phone": "+91-33-2463-1111", "address": "Southern Avenue, Kolkata 700029", "rating": "4.2", "website": "alphafitness.com", "email": "kolkata@alphafitness.com", "timing": "5:30 AM - 10:30 PM", "services": "Personal Training, Nutrition Plans", "established": "2010"},
-                    {"name": "Muscle Mania Gym", "phone": "+91-33-2287-9999", "address": "Camac Street, Kolkata 700017", "rating": "4.1", "website": "N/A", "email": "N/A", "timing": "6:00 AM - 10:30 PM", "services": "Competitive Training, Supplements", "established": "2006"},
-                    {"name": "Fitness First EM Bypass", "phone": "+91-33-6606-7777", "address": "EM Bypass, Kolkata 700107", "rating": "4.3", "website": "fitnessfirst.co.in", "email": "embypass@fitnessfirst.co.in", "timing": "6:00 AM - 11:00 PM", "services": "Swimming, Spa, Gym", "established": "2014"},
-                    {"name": "Body Sculpture Gym", "phone": "+91-33-2460-5555", "address": "Hindustan Road, Kolkata 700029", "rating": "4.0", "website": "bodysculpture.in", "email": "kolkata@bodysculpture.in", "timing": "6:00 AM - 10:00 PM", "services": "Body Transformation, Diet Plans", "established": "2011"},
-                    {"name": "Iron Core Fitness", "phone": "+91-33-4068-8888", "address": "Salt Lake Sector V, Kolkata 700091", "rating": "4.2", "website": "ironcorefitness.com", "email": "sectorv@ironcorefitness.com", "timing": "6:00 AM - 10:30 PM", "services": "IT Professional Discounts, Modern Gym", "established": "2016"},
-                    {"name": "Beast Mode Gym", "phone": "+91-33-2229-7777", "address": "Park Street, Kolkata 700016", "rating": "4.4", "website": "beastmodegym.com", "email": "parkstreet@beastmodegym.com", "timing": "5:00 AM - 11:30 PM", "services": "Hardcore Training, Competition Prep", "established": "2018"},
-                    {"name": "Elevate Fitness", "phone": "+91-33-2463-8888", "address": "Ballygunge Place, Kolkata 700019", "rating": "4.3", "website": "elevatefitness.in", "email": "ballygunge@elevatefitness.in", "timing": "6:00 AM - 10:30 PM", "services": "Boutique Fitness, Personal Training", "established": "2017"},
-                    {"name": "Hardcore Gym", "phone": "+91-33-2287-2222", "address": "Theatre Road, Kolkata 700017", "rating": "4.1", "website": "N/A", "email": "N/A", "timing": "5:30 AM - 10:30 PM", "services": "Old School Training, No Frills", "established": "1995"}
-                ]
-            elif location == 'mumbai':
-                return [
-                    {"name": "Gold's Gym Bandra", "phone": "+91-22-2640-8888", "address": "Linking Road, Bandra West, Mumbai 400050", "rating": "4.4", "website": "goldsgym.in", "email": "bandra@goldsgym.in", "timing": "5:30 AM - 11:30 PM", "services": "Premium Fitness, Personal Training", "established": "2003"},
-                    {"name": "Fitness First BKC", "phone": "+91-22-6708-7777", "address": "Bandra Kurla Complex, Mumbai 400051", "rating": "4.5", "website": "fitnessfirst.co.in", "email": "bkc@fitnessfirst.co.in", "timing": "5:30 AM - 12:00 AM", "services": "Corporate Packages, Swimming", "established": "2007"},
-                    {"name": "Anytime Fitness Powai", "phone": "+91-22-2576-9999", "address": "Hiranandani Gardens, Powai, Mumbai 400076", "rating": "4.3", "website": "anytimefitness.co.in", "email": "powai@anytimefitness.co.in", "timing": "24/7", "services": "24/7 Access, Tech Professionals", "established": "2011"},
-                    {"name": "Talwalkars Gym Andheri", "phone": "+91-22-2673-7777", "address": "Andheri West, Mumbai 400053", "rating": "4.2", "website": "talwalkars.com", "email": "andheri@talwalkars.com", "timing": "6:00 AM - 11:00 PM", "services": "Complete Fitness Solutions", "established": "2005"},
-                    {"name": "Snap Fitness Malad", "phone": "+91-22-2888-6666", "address": "Malad West, Mumbai 400064", "rating": "4.1", "website": "snapfitness.com", "email": "malad@snapfitness.com", "timing": "24/7", "services": "Small Group Training", "established": "2014"}
-                ]
-        
-        # SHOPPING/MALL DATA
-        elif business_type == 'shop':
-            if location == 'pune':
-                return [
-                    {"name": "Phoenix MarketCity Pune", "phone": "+91-20-6749-4949", "address": "142, Viman Nagar, Pune 411014", "rating": "4.4", "website": "phoenixmills.com", "email": "pune@phoenixmills.com", "timing": "10:00 AM - 10:00 PM", "services": "Shopping Mall, Food Court, Entertainment", "established": "2013"},
-                    {"name": "Westend Mall", "phone": "+91-20-2528-8888", "address": "Aundh, Pune 411007", "rating": "4.2", "website": "westendmalls.com", "email": "pune@westendmalls.com", "timing": "10:00 AM - 10:00 PM", "services": "Shopping, Dining, Cinema", "established": "2010"},
-                    {"name": "Seasons Mall", "phone": "+91-20-6630-3030", "address": "Magarpatta City, Hadapsar, Pune 411013", "rating": "4.3", "website": "seasonsmall.in", "email": "info@seasonsmall.in", "timing": "10:00 AM - 10:00 PM", "services": "Retail, Food Court", "established": "2011"},
-                    {"name": "Amanora Town Centre", "phone": "+91-20-6766-9999", "address": "Amanora Park Town, Hadapsar, Pune 411028", "rating": "4.1", "website": "amanora.com", "email": "info@amanora.com", "timing": "10:00 AM - 10:00 PM", "services": "Mall, Entertainment, Food", "established": "2008"},
-                    {"name": "Ezone Mall", "phone": "+91-20-2421-2121", "address": "Kharadi, Pune 411014", "rating": "4.0", "website": "ezonemall.com", "email": "info@ezonemall.com", "timing": "10:00 AM - 10:00 PM", "services": "Shopping, Movies", "established": "2012"},
-                    {"name": "City One Mall", "phone": "+91-20-2650-5050", "address": "Pimpri Chinchwad, Pune 411018", "rating": "4.2", "website": "cityonemall.com", "email": "info@cityonemall.com", "timing": "10:00 AM - 10:00 PM", "services": "Shopping Center, Food", "established": "2009"},
-                    {"name": "Kumar Pacific Mall", "phone": "+91-20-2421-8888", "address": "Swargate, Pune 411042", "rating": "4.1", "website": "kumarpacificmall.com", "email": "info@kumarpacificmall.com", "timing": "10:00 AM - 10:00 PM", "services": "Retail Shopping", "established": "2015"},
-                    {"name": "SGS Mall", "phone": "+91-20-2528-7777", "address": "Pune-Satara Road, Pune 411037", "rating": "3.9", "website": "sgsmall.com", "email": "info@sgsmall.com", "timing": "10:00 AM - 10:00 PM", "services": "Local Shopping", "established": "2007"},
-                    {"name": "Pavilion Mall", "phone": "+91-20-2421-4444", "address": "Shivajinagar, Pune 411005", "rating": "4.0", "website": "pavilionmallpune.com", "email": "info@pavilionmallpune.com", "timing": "10:00 AM - 10:00 PM", "services": "Shopping, Entertainment", "established": "2014"},
-                    {"name": "Inorbit Mall Pune", "phone": "+91-20-6630-4040", "address": "Viman Nagar, Pune 411014", "rating": "4.3", "website": "inorbitmall.com", "email": "pune@inorbitmall.com", "timing": "10:00 AM - 11:00 PM", "services": "Premium Shopping, Dining", "established": "2017"}
-                ]
-            elif location == 'mumbai':
-                return [
-                    {"name": "Palladium Mall", "phone": "+91-22-6708-9999", "address": "Senapati Bapat Marg, Lower Parel, Mumbai 400013", "rating": "4.5", "website": "palladiummall.in", "email": "info@palladiummall.in", "timing": "10:00 AM - 10:00 PM", "services": "Luxury Shopping, Fine Dining", "established": "2010"},
-                    {"name": "Phoenix Mills", "phone": "+91-22-6749-9999", "address": "Senapati Bapat Marg, Lower Parel, Mumbai 400013", "rating": "4.4", "website": "phoenixmills.com", "email": "mumbai@phoenixmills.com", "timing": "10:00 AM - 11:00 PM", "services": "Shopping, Entertainment, Food", "established": "2004"},
-                    {"name": "Infiniti Malad", "phone": "+91-22-2888-8888", "address": "New Link Road, Malad West, Mumbai 400064", "rating": "4.2", "website": "infinitimall.com", "email": "malad@infinitimall.com", "timing": "10:00 AM - 10:00 PM", "services": "Shopping, Movies, Food Court", "established": "2004"},
-                    {"name": "R City Mall Ghatkopar", "phone": "+91-22-6111-7777", "address": "LBS Marg, Ghatkopar West, Mumbai 400086", "rating": "4.3", "website": "rcitymall.com", "email": "info@rcitymall.com", "timing": "10:00 AM - 10:00 PM", "services": "Shopping, Entertainment", "established": "2010"},
-                    {"name": "Oberoi Mall", "phone": "+91-22-6707-7777", "address": "Western Express Highway, Goregaon East, Mumbai 400063", "rating": "4.1", "website": "oberoimall.com", "email": "info@oberoimall.com", "timing": "10:00 AM - 10:00 PM", "services": "Shopping, Food, Movies", "established": "2004"}
-                ]
-        
-        # DEFAULT FALLBACK - When no specific match is found
-        return [
-            {"name": f"Sample Business in {location.title()}", "phone": "+91-11-2345-6789", "address": f"123 Main Street, {location.title()} 110001", "rating": "4.2", "website": "example.com", "email": "info@sample.com", "timing": "9:00 AM - 9:00 PM", "services": "General Services", "established": "2000"},
-            {"name": f"Local {business_type.title()} Shop", "phone": "+91-11-3456-7890", "address": f"456 Commercial Street, {location.title()} 110002", "rating": "4.1", "website": "localshop.com", "email": "contact@localshop.com", "timing": "9:00 AM - 8:00 PM", "services": f"{business_type.title()} Services", "established": "2005"},
-            {"name": f"{location.title()} Business Center", "phone": "+91-11-4567-8901", "address": f"789 Business Park, {location.title()} 110003", "rating": "4.3", "website": "businesscenter.com", "email": "info@businesscenter.com", "timing": "10:00 AM - 6:00 PM", "services": "Professional Services", "established": "2010"}
-        ]
+    def get_business_data(self, query):
+        """Scrape business data from Google Maps"""
+        import urllib.parse
+
+        encoded_query = urllib.parse.quote(query)
+        url = f"https://www.google.com/maps/search/?api=1&query={encoded_query}"
+
+        # Configure Selenium to use a headless Chrome browser
+        options = webdriver.ChromeOptions()
+        options.add_argument("--headless")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+
+        driver.get(url)
+        time.sleep(5)  # Wait for the page to load
+
+        soup = BeautifulSoup(driver.page_source, 'html.parser')
+        driver.quit()
+
+        scraped_businesses = []
+        feed_container = soup.find('div', {'role': 'feed'})
+
+        if feed_container:
+            for result in feed_container.find_all('div', {'class': 'Nv2PK THOPZb CpccDe'}):
+                name_element = result.find('a', {'class': 'hfpxzc'})
+                name = name_element.get('aria-label') if name_element else 'N/A'
+                website = name_element.get('href') if name_element else 'N/A'
+
+                phone = 'N/A'
+                address = 'N/A'
+                rating = 'N/A'
+
+                details_container = result.find_all('div', {'class': 'W4Efsd'})
+                for detail in details_container:
+                    text = detail.get_text()
+                    if '·' in text:
+                        parts = text.split('·')
+                        for part in parts:
+                            if any(char.isdigit() for char in part) and any(c in part for c in '()-+'):
+                                phone = part.strip()
+                            elif 'stars' in part:
+                                rating = part.strip()
+                            else:
+                                address = part.strip()
+                    elif any(char.isdigit() for char in text) and any(c in text for c in '()-+'):
+                        phone = text.strip()
+                    elif text:
+                        address = text.strip()
+
+                scraped_businesses.append({
+                    "name": name,
+                    "phone": phone,
+                    "address": address,
+                    "rating": rating,
+                    "website": website,
+                    "email": "N/A",
+                    "timing": "N/A",
+                    "services": "N/A",
+                    "established": "N/A"
+                })
+
+        return scraped_businesses
     
     def search_businesses(self, query, max_results=10):
         """Search for businesses with comprehensive data"""
@@ -225,26 +137,18 @@ class CLIGoogleMapsScraper:
         print(f"\n🔍 Searching for: {query}")
         print("=" * 50)
         
-        # Determine business type from query
-        business_type = self.detect_business_type(query)
-        location = self.detect_location(query)
-        
-        print(f"📍 Location detected: {location.title()}")
-        print(f"🏢 Business type detected: {business_type.title()}")
-        print()
-        
-        # Get appropriate business data
-        sample_businesses = self.get_business_data(location, business_type)
+        # Get appropriate business data by scraping
+        scraped_businesses = self.get_business_data(query)
         
         # If MAX is selected, use all available data
         if max_results == 999:  # MAX mode
-            max_results = len(sample_businesses)
-            print(f"🔥 MAX MODE: Getting all {len(sample_businesses)} available businesses!")
+            max_results = len(scraped_businesses)
+            print(f"🔥 MAX MODE: Getting all {len(scraped_businesses)} available businesses!")
         
         # Simulate scraping with progress
-        total_businesses = min(len(sample_businesses), max_results)
+        total_businesses = min(len(scraped_businesses), max_results)
         
-        for i, business in enumerate(sample_businesses):
+        for i, business in enumerate(scraped_businesses):
             if i >= max_results:
                 break
                 
