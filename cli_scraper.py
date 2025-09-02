@@ -456,6 +456,151 @@ class CLIGoogleMapsScraper:
         additional_contacts['contact_methods_count'] += 1  # Add name as contact method
         
         return additional_contacts
+        
+    def analyze_hyper_local_micro_targeting(self, businesses):
+        """Analyze businesses for hyper-local micro-targeting insights"""
+        if not businesses:
+            return {}
+        
+        print("\n🎪 HYPER-LOCAL MICRO-TARGETING ANALYSIS")
+        print("=" * 50)
+        
+        # Extract location data from addresses
+        location_clusters = {}
+        business_types = {}
+        supply_chain_opportunities = []
+        local_events_calendar = {
+            'January': ['New Year Business Campaigns', 'Winter Shopping Season'],
+            'February': ['Valentine\'s Day Promotions', 'Budget Season'],
+            'March': ['Holi Festival Marketing', 'Year-End Business Planning'],
+            'April': ['Summer Season Launch', 'Festival Season Prep'],
+            'May': ['Mother\'s Day Campaigns', 'Summer Vacation Marketing'],
+            'June': ['Monsoon Prep Campaigns', 'Mid-Year Business Reviews'],
+            'July': ['Monsoon Special Offers', 'Independence Day Prep'],
+            'August': ['Independence Day Marketing', 'Festival Season Start'],
+            'September': ['Ganesh Festival Marketing', 'Back-to-School Campaigns'],
+            'October': ['Diwali Campaign Prep', 'Festive Season Launch'],
+            'November': ['Diwali Marketing Peak', 'Winter Collection Launch'],
+            'December': ['Christmas & New Year Campaigns', 'Year-End Sales']
+        }
+        
+        print("🔍 Analyzing location clusters...")
+        time.sleep(0.5)
+        
+        # Group businesses by location areas
+        for business in businesses:
+            address = business.get('address', '').lower()
+            business_type = business.get('category', 'General')
+            
+            # Extract area/locality from address
+            areas = ['bandra', 'andheri', 'mumbai central', 'powai', 'malad', 'borivali',
+                    'salt lake', 'park street', 'ballygunge', 'gariahat', 'new town',
+                    'viman nagar', 'koregaon park', 'aundh', 'hadapsar', 'kharadi']
+            
+            detected_area = 'Other Areas'
+            for area in areas:
+                if area in address:
+                    detected_area = area.title()
+                    break
+            
+            # Cluster by area
+            if detected_area not in location_clusters:
+                location_clusters[detected_area] = []
+            location_clusters[detected_area].append(business)
+            
+            # Group by business type
+            if business_type not in business_types:
+                business_types[business_type] = []
+            business_types[business_type].append(business)
+        
+        print("🏘️ Identifying neighborhood business clusters...")
+        time.sleep(0.5)
+        
+        # Analyze clusters for opportunities
+        cluster_insights = {}
+        for area, area_businesses in location_clusters.items():
+            if len(area_businesses) >= 2:  # Only analyze areas with multiple businesses
+                types_in_area = [b.get('category', 'General') for b in area_businesses]
+                unique_types = set(types_in_area)
+                
+                cluster_insights[area] = {
+                    'business_count': len(area_businesses),
+                    'business_types': list(unique_types),
+                    'dominant_type': max(set(types_in_area), key=types_in_area.count) if types_in_area else 'Mixed',
+                    'cross_promotion_potential': len(unique_types) > 1,
+                    'businesses': area_businesses
+                }
+        
+        print("🔗 Analyzing supply chain relationships...")
+        time.sleep(0.5)
+        
+        # Identify potential supply chain relationships
+        for business_type, type_businesses in business_types.items():
+            if business_type == 'Restaurant' and 'Shopping' in business_types:
+                supply_chain_opportunities.append({
+                    'relationship_type': 'Restaurant-Supplier',
+                    'opportunity': 'Restaurants need suppliers from shopping centers/markets',
+                    'businesses_involved': len(type_businesses) + len(business_types.get('Shopping', [])),
+                    'potential_revenue': 'Medium-High'
+                })
+            
+            if business_type == 'Medical' and len(type_businesses) > 3:
+                supply_chain_opportunities.append({
+                    'relationship_type': 'Medical Equipment/Pharma Network',
+                    'opportunity': 'Medical facilities need equipment and pharmaceutical supplies',
+                    'businesses_involved': len(type_businesses),
+                    'potential_revenue': 'High'
+                })
+        
+        print("📅 Mapping local cultural calendar...")
+        time.sleep(0.5)
+        
+        # Get current month for relevant events
+        current_month = datetime.now().strftime('%B')
+        relevant_events = local_events_calendar.get(current_month, ['General business opportunities'])
+        
+        print("🎯 Generating micro-targeting insights...")
+        time.sleep(0.5)
+        
+        # Generate insights for each business
+        for business in businesses:
+            address = business.get('address', '').lower()
+            business_type = business.get('category', 'General')
+            
+            # Find area cluster
+            business_area = 'Other Areas'
+            for area in location_clusters.keys():
+                if area.lower() in address or any(keyword in address for keyword in area.lower().split()):
+                    business_area = area
+                    break
+            
+            # Add hyper-local data to business
+            business['local_cluster'] = business_area
+            business['cluster_size'] = len(location_clusters.get(business_area, []))
+            business['cross_promotion_potential'] = cluster_insights.get(business_area, {}).get('cross_promotion_potential', False)
+            business['seasonal_opportunities'] = '; '.join(relevant_events[:2])  # Top 2 current opportunities
+            business['supply_chain_potential'] = 'Yes' if any(opp for opp in supply_chain_opportunities 
+                                                            if business_type in opp.get('relationship_type', '')) else 'Low'
+            
+            # Calculate local influence score
+            cluster_bonus = min(cluster_insights.get(business_area, {}).get('business_count', 1) * 5, 25)
+            cross_promo_bonus = 15 if business.get('cross_promotion_potential') else 0
+            supply_bonus = 10 if business.get('supply_chain_potential') == 'Yes' else 0
+            
+            local_influence_score = cluster_bonus + cross_promo_bonus + supply_bonus
+            business['local_influence_score'] = min(local_influence_score, 50)  # Max 50 points
+        
+        # Compile final analysis report
+        analysis_report = {
+            'total_clusters': len([c for c in cluster_insights.values() if c['business_count'] >= 2]),
+            'largest_cluster': max(cluster_insights.items(), key=lambda x: x[1]['business_count']) if cluster_insights else ('None', {'business_count': 0}),
+            'cross_promotion_opportunities': sum(1 for c in cluster_insights.values() if c['cross_promotion_potential']),
+            'supply_chain_opportunities': supply_chain_opportunities,
+            'current_seasonal_events': relevant_events,
+            'cluster_details': cluster_insights
+        }
+        
+        return analysis_report
     
     def analyze_leads_advanced(self, selected_features):
         """Perform advanced lead analysis"""
@@ -468,6 +613,10 @@ class CLIGoogleMapsScraper:
         
         total_leads = len(self.scraped_data)
         
+        # Hyper-Local Micro-Targeting analysis (runs first to add data to all businesses)
+        if 'hyper_local' in selected_features:
+            analysis_report = self.analyze_hyper_local_micro_targeting(self.scraped_data)
+            
         for i, business in enumerate(self.scraped_data):
             print(f"🔍 Analyzing lead {i+1}/{total_leads}: {business['name'][:30]}...")
             
@@ -501,7 +650,7 @@ class CLIGoogleMapsScraper:
         
         print("\n✅ ANALYSIS COMPLETE!")
         
-        # Show summary
+        # Show summaries
         if 'scoring' in selected_features:
             scores = [b.get('lead_score', 0) for b in self.scraped_data]
             avg_score = sum(scores) / len(scores)
@@ -527,6 +676,18 @@ class CLIGoogleMapsScraper:
             print(f"\n📞 CONTACT INTELLIGENCE SUMMARY:")
             print(f"   WhatsApp Business: {whatsapp_count}/{total_leads}")
             print(f"   Avg Contact Methods per Lead: {avg_contacts:.1f}")
+        
+        if 'hyper_local' in selected_features and 'analysis_report' in locals():
+            print(f"\n🎪 HYPER-LOCAL MICRO-TARGETING SUMMARY:")
+            print(f"   Business Clusters Identified: {analysis_report['total_clusters']}")
+            if analysis_report['largest_cluster'][0] != 'None':
+                print(f"   Largest Cluster: {analysis_report['largest_cluster'][0]} ({analysis_report['largest_cluster'][1]['business_count']} businesses)")
+            print(f"   Cross-Promotion Opportunities: {analysis_report['cross_promotion_opportunities']}")
+            print(f"   Supply Chain Opportunities: {len(analysis_report['supply_chain_opportunities'])}")
+            print(f"   Current Season Events: {', '.join(analysis_report['current_seasonal_events'][:2])}")
+            
+            avg_local_influence = sum([b.get('local_influence_score', 0) for b in self.scraped_data]) / total_leads
+            print(f"   Average Local Influence Score: {avg_local_influence:.1f}/50")
     
     def show_advanced_features_menu(self):
         """Show advanced features menu and get user selection"""
@@ -539,19 +700,21 @@ class CLIGoogleMapsScraper:
         print("    → Find Instagram/Facebook, identify opportunities")
         print("\n[3] 📞 Multi-Channel Contact Finder")
         print("    → WhatsApp, owner names, additional contacts")
-        print("\n[4] 🔥 ALL FEATURES (Complete Analysis)")
+        print("\n[4] 🎪 Hyper-Local Micro-Targeting")
+        print("    → Business clusters, local events, supply chains")
+        print("\n[5] 🔥 ALL FEATURES (Complete Analysis)")
         print("    → Full freelancing intelligence report")
-        print("\n[5] 📥 Export Basic CSV (Skip Advanced)")
+        print("\n[6] 📥 Export Basic CSV (Skip Advanced)")
         print("    → Just export current data without analysis")
         print("\n[0] ❌ Skip All Features")
         print("=" * 50)
         
         while True:
             try:
-                choice = input("\nChoose option (0-5): ").strip()
-                if choice in ['0', '1', '2', '3', '4', '5']:
+                choice = input("\nChoose option (0-6): ").strip()
+                if choice in ['0', '1', '2', '3', '4', '5', '6']:
                     return choice
-                print("❌ Please enter a number between 0 and 5!")
+                print("❌ Please enter a number between 0 and 6!")
             except:
                 print("❌ Please enter a valid option!")
     
