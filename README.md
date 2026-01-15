@@ -5,7 +5,7 @@
 [![macOS](https://img.shields.io/badge/Platform-macOS-lightgrey.svg)](https://www.apple.com/macos/)
 [![Status](https://img.shields.io/badge/Status-Active-success.svg)]()
 
-A powerful, dependency-free business lead generator for Indian markets. Extract comprehensive business data across major cities with advanced freelancing features including lead scoring, social media intelligence, and multi-channel contact discovery.
+A powerful business lead generator for Indian markets. This tool now exclusively extracts **legitimate, real-time business data** directly from Google Maps based on your search queries. All previously simulated or "dummy" data generation features have been removed to ensure the integrity and accuracy of the collected leads.
 
 ## 🚀 Key Features
 
@@ -13,26 +13,15 @@ A powerful, dependency-free business lead generator for Indian markets. Extract 
 - **CSV** - Excel & Google Sheets compatible with UTF-8 encoding
 - **JSON** - Developer-friendly with metadata
 - **TSV** - Database-ready tab-separated format  
-- **VCF** - Phone contact cards for direct import
-- **All Formats** - Export everything simultaneously
 
-### 🎯 **Advanced Freelancing Features**
-- **Lead Scoring (1-100)** - Prioritize high-value prospects
-- **Social Media Intelligence** - Find Instagram, Facebook, LinkedIn handles
-- **Multi-Channel Contact Discovery** - WhatsApp Business, owner names, alternative contacts
-- **Priority Classification** - ULTRA HIGH, HIGH, MEDIUM, LOW categories
+### 🌍 **Real-Time Data Collection**
+- Scrapes live business data from Google Maps
+- Collects Name, Phone, Address, Rating, and Website
+- Generates direct Google Maps links for each business
 
-### 🌍 **Complete India Coverage**
-- **500+ Real Businesses** across major cities
-- **Mumbai, Kolkata, Chennai, Delhi, Bangalore, Hyderabad, Pune**
-- **Medical, Restaurant, Fitness, Shopping** verticals
-- **Accurate contact information** with emails, websites, timings
-
-### ⚡ **Zero Dependencies**
-- Built with Python standard libraries only
-- No external packages required
-- Works on all macOS versions
-- Instant setup and execution
+### ⚡ **Dependencies**
+- Uses Python with `requests`, `beautifulsoup4`, `selenium`, and `webdriver_manager` for robust scraping.
+- Works on all macOS versions.
 
 ## 📦 Quick Start
 
@@ -42,6 +31,9 @@ A powerful, dependency-free business lead generator for Indian markets. Extract 
 git clone https://github.com/abuhuraira-73/lead-generator.git
 cd lead-generator
 
+# Install dependencies
+pip install -r requirements.txt
+
 # Make executable (optional)
 chmod +x cli_scraper.py
 
@@ -50,132 +42,170 @@ python3 cli_scraper.py
 ```
 
 ### Basic Usage
+
 ```bash
+
 python3 cli_scraper.py
+
 ```
 
-1. Enter your search query: `doctors in mumbai` or `restaurants in kolkata`
-2. Choose number of results (1-50 or 'MAX' for all)
-3. Select advanced features (optional)
-4. Choose export format(s)
+
+
+1. Select a category number from the menu (e.g., `2` for "Cafes").
+
+2. Enter the location for your search (e.g., `New York`).
+
+3. Choose number of results (1-50 or 'MAX' for all).
+
+4. Choose an export format.
+
 5. Your leads are ready!
 
-## 🎯 Advanced Features Guide
 
-### 1. Lead Scoring & Prioritization
-Automatically scores leads 1-100 based on:
-- **Business Rating** (30 points)
-- **Years in Business** (20 points) 
-- **Website Quality** (15 points)
-- **Email Availability** (15 points)
-- **Business Type Value** (20 points)
 
-### 2. Social Media Intelligence
-Discovers and analyzes:
-- **Instagram handles** with follower estimates
-- **Facebook pages** and activity levels
-- **LinkedIn company profiles**
-- **Opportunity identification** for inactive accounts
+Alternatively, you can type a full custom query like `hardware stores in Brooklyn` at the first prompt.
 
-### 3. Multi-Channel Contact Finder
-Finds additional contact methods:
-- **WhatsApp Business** numbers (70% success rate)
-- **Owner/Manager names** for direct outreach
-- **Alternative phone numbers**
-- **Google My Business** verification status
+
+
+## 📖 Quick Searches with Predefined Categories
+
+
+
+To make searching easier, you can start by picking one of the following predefined categories:
+
+
+
+--- **Food & Drink** ---
+
+  - [1] Restaurants
+
+  - [2] Cafes
+
+  - [3] Bars
+
+  - [4] Coffee Shops
+
+  - [5] Bakeries
+
+  - [6] Takeout
+
+  - [7] Delivery
+
+
+
+--- **Health & Wellness** ---
+
+  - [8] Doctors
+
+  - [9] Hospitals
+
+  - [10] Clinics
+
+  - [11] Dentists
+
+  - [12] Pharmacies
+
+  - [13] Gyms
+
+  - [14] Spas
+
+
+
+--- **Shopping** ---
+
+  - [15] Supermarkets
+
+  - [16] Grocery Stores
+
+  - [17] Shopping Malls
+
+  - [18] Clothing Stores
+
+  - [19] Book Stores
+
+
+
+--- **Services** ---
+
+  - [20] Hotels
+
+  - [21] Banks
+
+  - [22] ATMs
+
+  - [23] Gas Stations
+
+  - [24] Hair Salons
+
+
+
+--- **Things to Do** ---
+
+  - [25] Parks
+
+  - [26] Museums
+
+  - [27] Movie Theaters
+
+  - [28] Tourist Attractions
+
+  
 
 ## 📁 Export Formats
 
 ### CSV Format (Google Sheets Ready)
 ```csv
-name,phone,email,website,rating,lead_score,priority_level,whatsapp_business
-"Lilavati Hospital","+91-22-2675-1000","info@lilavatihospital.com","lilavatihospital.com","4.5","85","🔥 ULTRA HIGH","+91 22 2675 1000"
+name,phone,address,rating,website,scraped_at,google_maps_link
+"Lilavati Hospital","+91-22-2675-1000","Bandra Reclamation, Bandra West, Mumbai, Maharashtra","4.5","lilavatihospital.com","2025-01-15 10:00:00","https://www.google.com/maps/search/?api=1&query=Lilavati%20Hospital%2C%20Bandra%20Reclamation%2C%20Bandra%20West%2C%20Mumbai%2C%20Maharashtra"
 ```
 
 ### JSON Format (Developer Friendly)
 ```json
 {
   "export_info": {
-    "total_records": 3,
-    "export_timestamp": "2025-01-11T08:45:54.123456",
-    "enhanced": true
+    "total_records": 1,
+    "export_timestamp": "2025-01-15T10:00:00.000000"
   },
   "businesses": [
     {
       "name": "Lilavati Hospital",
       "phone": "+91-22-2675-1000",
-      "lead_score": 85,
-      "instagram": "@lilavatihospital"
+      "address": "Bandra Reclamation, Bandra West, Mumbai, Maharashtra",
+      "rating": "4.5",
+      "website": "lilavatihospital.com",
+      "scraped_at": "2025-01-15 10:00:00",
+      "google_maps_link": "https://www.google.com/maps/search/?api=1&query=Lilavati%20Hospital%2C%20Bandra%20Reclamation%2C%20Bandra%20West%2C%20Mumbai%2C%20Maharashtra"
     }
   ]
 }
 ```
 
-### VCF Format (Phone Contacts)
-```vcf
-BEGIN:VCARD
-VERSION:3.0
-FN:Lilavati Hospital
-TEL;TYPE=WORK:+912226751000
-EMAIL:info@lilavatihospital.com
-URL:https://lilavatihospital.com
-NOTE:Services: Multi-specialty Hospital | Lead Score: 85/100
-END:VCARD
+### TSV Format (Tab Separated Values)
+```tsv
+name    phone   address rating  website scraped_at  google_maps_link
+"Lilavati Hospital" "+91-22-2675-1000"  "Bandra Reclamation, Bandra West, Mumbai, Maharashtra"  "4.5"   "lilavatihospital.com"  "2025-01-15 10:00:00"   "https://www.google.com/maps/search/?api=1&query=Lilavati%20Hospital%2C%20Bandra%20Reclamation%2C%20Bandra%20West%2C%20Mumbai%2C%20Maharashtra"
 ```
 
-## 🎨 Sample Output Files
 
-Check out the sample files included in this repository:
 
-- [`sample_basic_leads.csv`](sample_basic_leads.csv) - Basic business data
-- [`sample_enhanced_leads.csv`](sample_enhanced_leads.csv) - Full analysis with scoring
-- [`sample_leads.json`](sample_leads.json) - JSON format for developers
-- [`sample_leads.tsv`](sample_leads.tsv) - Tab-separated format
-- [`sample_contacts.vcf`](sample_contacts.vcf) - Phone contact cards
+## 🏙️ Supported Searches
 
-## 🏙️ Supported Cities & Categories
+This tool now dynamically scrapes Google Maps for any business type in any location you specify in your search query. The coverage is determined by Google Maps' own search capabilities.
 
-### Cities
-- **Mumbai/Bombay** - Financial capital with premium hospitals and restaurants
-- **Kolkata/Calcutta** - Cultural hub with traditional businesses
-- **Chennai/Madras** - Tech center with modern establishments
-- **Delhi/New Delhi** - National capital region
-- **Bangalore/Bengaluru** - Silicon Valley of India
-- **Hyderabad** - Cyberabad tech hub
-- **Pune** - IT and manufacturing center
+### Example Search Queries
+- `restaurants in Mumbai`
+- `doctors in Bangalore`
+- `gyms near Connaught Place Delhi`
+- `shopping malls in Kolkata`
 
-### Business Categories
-- **Medical** - Hospitals, clinics, specialists (30+ venues per city)
-- **Restaurant** - Fine dining, casual, traditional cuisine (20+ per city)
-- **Fitness** - Gyms, yoga studios, wellness centers (25+ per city)  
-- **Shopping** - Malls, retail stores, markets (15+ per city)
 
-## 💰 Freelancing Profit Tips
-
-### High-Value Lead Identification
-- Focus on **85+ scored leads** first
-- **Medical businesses** = highest service value
-- **Established businesses** (10+ years) = stable clients
-- **Multiple contact methods** = higher conversion
-
-### Service Opportunities
-- **Inactive social media** = Social media management services
-- **No website** = Web development opportunities  
-- **Poor online presence** = Digital marketing services
-- **High ratings** = Testimonial and review management
-
-### Outreach Strategy
-1. **WhatsApp Business** for immediate response
-2. **Contact owner/manager** directly (avoid gatekeepers)
-3. **Reference specific business details** to show research
-4. **Offer value-first approach** with free audit
 
 ## 🔧 Technical Details
 
 ### Architecture
-- **Modular design** with separate classes for different functions
-- **Simulation engine** for realistic business data generation
-- **Smart export system** with format auto-detection
+- **Modular design** focused on web scraping from Google Maps
+- **Browser automation** using Selenium for dynamic content rendering
+- **HTML parsing** with BeautifulSoup for data extraction
 - **Error handling** for robust operation
 
 ### Data Structure
@@ -185,20 +215,10 @@ Each business record contains:
     'name': str,           # Business name
     'phone': str,          # Primary phone number
     'address': str,        # Full address
-    'rating': str,         # Google rating (1-5)
-    'website': str,        # Official website
-    'email': str,          # Contact email
-    'timing': str,         # Operating hours
-    'services': str,       # Services offered
-    'established': str,    # Year established
-    'category': str,       # Business category
-    'scraped_at': str,     # Timestamp
-    # Enhanced features (when enabled)
-    'lead_score': int,     # Priority score (1-100)
-    'priority_level': str, # Priority classification
-    'instagram': str,      # Instagram handle
-    'whatsapp_business': str, # WhatsApp number
-    'owner_manager': str,  # Contact person name
+    'rating': str,         # Google rating (e.g., "4.5")
+    'website': str,        # Official website (if available)
+    'scraped_at': str,     # Timestamp of when data was scraped
+    'google_maps_link': str, # Direct link to the business on Google Maps
 }
 ```
 
@@ -225,7 +245,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## ⚠️ Disclaimer
 
-This tool is for educational and business development purposes. The sample data included represents realistic business information but should be verified before commercial use. Always respect robots.txt and terms of service when scraping data.
+This tool performs real-time web scraping of publicly available data from Google Maps. Users are responsible for adhering to Google's Terms of Service and any applicable local regulations regarding data collection. Always respect `robots.txt` directives (where applicable) and avoid excessive requests to prevent service disruption. This tool is provided for educational and business development purposes; commercial use should be undertaken with full awareness of legal and ethical implications.
 
 ## 🆘 Support
 
@@ -239,6 +259,6 @@ If this project helped you generate leads or grow your business, please give it 
 
 ---
 
-**Made with ❤️ for Indian freelancers and digital marketers**
+**Made with ❤️ for ethical lead generation**
 
-*Ready to transform your lead generation process? Clone, run, and start closing deals today!*
+*Ready to gather real-time business insights? Clone, run, and start collecting legitimate leads today!*
