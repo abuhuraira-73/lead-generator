@@ -22,6 +22,50 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
+
+INDIA_GEOGRAPHY = {
+    "All Major Cities": [
+        "Mumbai", "Delhi", "Bangalore", "Hyderabad", "Ahmedabad", "Chennai", "Kolkata", "Surat", "Pune", "Jaipur"
+    ],
+    "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore"],
+    "Arunachal Pradesh": ["Itanagar"],
+    "Assam": ["Guwahati", "Dibrugarh", "Silchar"],
+    "Bihar": ["Patna", "Gaya", "Bhagalpur"],
+    "Chhattisgarh": ["Raipur", "Bhilai"],
+    "Goa": ["Panaji", "Vasco da Gama"],
+    "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot"],
+    "Haryana": ["Faridabad", "Gurgaon", "Panipat"],
+    "Himachal Pradesh": ["Shimla", "Manali"],
+    "Jharkhand": ["Ranchi", "Jamshedpur", "Dhanbad"],
+    "Karnataka": ["Bangalore", "Hubli", "Mysore", "Mangalore"],
+    "Kerala": ["Kochi", "Thiruvananthapuram", "Kozhikode"],
+    "Madhya Pradesh": ["Indore", "Bhopal", "Jabalpur", "Gwalior"],
+    "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Nashik", "Aurangabad"],
+    "Manipur": ["Imphal"],
+    "Meghalaya": ["Shillong"],
+    "Mizoram": ["Aizawl"],
+    "Nagaland": ["Kohima", "Dimapur"],
+    "Odisha": ["Bhubaneswar", "Cuttack"],
+    "Punjab": ["Ludhiana", "Amritsar", "Jalandhar"],
+    "Rajasthan": ["Jaipur", "Jodhpur", "Udaipur", "Kota"],
+    "Sikkim": ["Gangtok"],
+    "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Tiruchirappalli"],
+    "Telangana": ["Hyderabad", "Warangal", "Nizamabad"],
+    "Tripura": ["Agartala"],
+    "Uttar Pradesh": ["Lucknow", "Kanpur", "Ghaziabad", "Agra", "Varanasi"],
+    "Uttarakhand": ["Dehradun", "Haridwar"],
+    "West Bengal": ["Kolkata", "Asansol", "Siliguri"],
+    "Andaman and Nicobar Islands": ["Port Blair"],
+    "Chandigarh": ["Chandigarh"],
+    "Dadra and Nagar Haveli and Daman and Diu": ["Daman", "Silvassa"],
+    "Delhi": ["Delhi", "New Delhi"],
+    "Jammu and Kashmir": ["Srinagar", "Jammu"],
+    "Ladakh": ["Leh"],
+    "Lakshadweep": ["Kavaratti"],
+    "Puducherry": ["Puducherry"]
+}
+
+
 class CLIGoogleMapsScraper:
     def __init__(self):
         self.scraped_data = []
@@ -130,44 +174,115 @@ class CLIGoogleMapsScraper:
         driver.quit()
         return scraped_businesses
     
-    def get_expanded_queries(self, query):
-        """Expand a broad query into multiple specific queries for better coverage."""
-        query_lower = query.lower()
-        # Simple mapping of major cities to their sub-regions
-        city_definitions = {
-            "new york": ["Manhattan", "Brooklyn", "Queens", "The Bronx", "Staten Island"],
-            "mumbai": ["South Mumbai", "Western Suburbs", "Central Suburbs", "Harbour Suburbs", "Navi Mumbai"],
-            "delhi": ["South Delhi", "North Delhi", "West Delhi", "East Delhi", "Central Delhi", "Gurgaon", "Noida"],
-            "bangalore": ["Central Bangalore", "North Bangalore", "South Bangalore", "East Bangalore", "West Bangalore"]
-        }
+    def get_user_input(self):
+        """Guides the user through a multi-level menu to generate search queries."""
+        print("🔍 SEARCH SETTINGS")
+        print("-" * 30)
         
-        base_query = query_lower
-        target_city = None
-        
-        for city_name in city_definitions.keys():
-            if city_name in query_lower:
-                # Remove the city name to get the core search term (e.g., "cafes in")
-                base_query = query_lower.replace(city_name, "").strip()
-                target_city = city_name
-                break
-        
-        if target_city:
-            # Re-create queries with specific sub-regions
-            expanded_queries = [f"{base_query} in {region}" for region in city_definitions[target_city]]
-            print(f"ℹ️ Broad query detected. Expanding search for '{target_city}' into {len(expanded_queries)} sub-regions.")
-            return expanded_queries
-        else:
-            # If no major city is found, return the original query
-            return [query]
+        # --- Main Menu: India vs World ---
+        print("[1] Search within India (Guided Menu)")
+        print("[2] Search anywhere else in the world (Custom Query)")
+        main_choice = ""
+        while main_choice not in ["1", "2"]:
+            main_choice = input("Enter your choice: ").strip()
 
-    def search_businesses(self, query, max_results=10):
-        """Search for businesses using expanded queries for better coverage."""
+        queries = []
+        search_term = ""
+
+        # --- Guided India Search ---
+        if main_choice == '1':
+            print("\n--- India Search Menu ---")
+            print("[1] Scan all major cities in India")
+            print("[2] Select a specific State/UT")
+            india_choice = ""
+            while india_choice not in ["1", "2"]:
+                india_choice = input("Enter your choice: ").strip()
+
+            # Scan All India
+            if india_choice == '1':
+                while not search_term:
+                    search_term = input("Enter the search term (e.g., 'Cafes', 'Hospitals'): ").strip()
+                queries = [f"{search_term} in {city}" for city in INDIA_GEOGRAPHY["All Major Cities"]]
+
+            # Select a State
+            elif india_choice == '2':
+                states = list(INDIA_GEOGRAPHY.keys())
+                states.remove("All Major Cities")
+                for i, state in enumerate(states):
+                    print(f"[{i+1}] {state}")
+                
+                state_idx = -1
+                while state_idx < 0 or state_idx >= len(states):
+                    try:
+                        state_idx = int(input("Select a State/UT by number: ").strip()) - 1
+                    except (ValueError, IndexError):
+                        print("❌ Invalid selection.")
+                        state_idx = -1
+                selected_state = states[state_idx]
+
+                print(f"\n--- {selected_state} Menu ---")
+                print(f"[1] Scan all major cities in {selected_state}")
+                print(f"[2] Select a specific city in {selected_state}")
+                state_choice = ""
+                while state_choice not in ["1", "2"]:
+                    state_choice = input("Enter your choice: ").strip()
+                
+                # Scan all cities in State
+                if state_choice == '1':
+                    while not search_term:
+                        search_term = input(f"Enter search term for {selected_state} (e.g., 'Cafes'): ").strip()
+                    queries = [f"{search_term} in {city}" for city in INDIA_GEOGRAPHY[selected_state]]
+
+                # Select a city in State
+                elif state_choice == '2':
+                    cities = INDIA_GEOGRAPHY[selected_state]
+                    for i, city in enumerate(cities):
+                        print(f"[{i+1}] {city}")
+                    
+                    city_idx = -1
+                    while city_idx < 0 or city_idx >= len(cities):
+                        try:
+                            city_idx = int(input(f"Select a city in {selected_state}: ").strip()) - 1
+                        except (ValueError, IndexError):
+                            print("❌ Invalid selection.")
+                            city_idx = -1
+                    selected_city = cities[city_idx]
+                    
+                    while not search_term:
+                        search_term = input(f"Enter search term for {selected_city}: ").strip()
+                    queries = [f"{search_term} in {selected_city}"]
+
+        # --- Custom World Search ---
+        else:
+            custom_query = ""
+            while not custom_query:
+                custom_query = input("\nEnter your full custom query (e.g., 'Restaurants in Paris'): ").strip()
+            queries = [custom_query]
+        
+        # --- Get Max Results (common for all paths) ---
+        while True:
+            try:
+                user_input = input("\nMax results per location (1-50 or 'MAX', default 5): ").strip() or "5"
+                if user_input.upper() == 'MAX':
+                    max_results = 999
+                    break
+                else:
+                    max_results = int(user_input)
+                    if 1 <= max_results <= 50:
+                        break
+                    print("❌ Please enter a number between 1 and 50, or type 'MAX'!")
+            except ValueError:
+                print("❌ Please enter a valid number or type 'MAX'!")
+        
+        return queries, max_results
+    
+    def search_businesses(self, queries, max_results=10):
+        """Search for businesses using a list of queries for better coverage."""
         self.scraped_data = []
         
-        expanded_queries = self.get_expanded_queries(query)
         all_businesses = []
         
-        for sub_query in expanded_queries:
+        for sub_query in queries:
             print(f"\n🔍 Searching for: {sub_query}")
             print("-" * 50)
             all_businesses.extend(self.get_business_data(sub_query))
@@ -184,12 +299,15 @@ class CLIGoogleMapsScraper:
 
         self.scraped_data = list(unique_businesses.values())
         
-        if max_results == 999:  # MAX mode
-            max_results = len(self.scraped_data)
-            print(f"🔥 MAX MODE: Processing all {len(self.scraped_data)} unique businesses!")
-        
-        total_businesses = min(len(self.scraped_data), max_results)
-        self.scraped_data = self.scraped_data[:total_businesses]
+        # The max_results from user now applies to the total unique results
+        # If user did not select MAX, we cap the total results.
+        if max_results != 999:
+            print(f"Capping total unique results to {max_results}")
+            self.scraped_data = self.scraped_data[:max_results]
+        else:
+            print(f"Processing all {len(self.scraped_data)} unique businesses!")
+
+        total_businesses = len(self.scraped_data)
 
         for i, business in enumerate(self.scraped_data):
             # Add timestamp
@@ -398,17 +516,16 @@ def main():
     scraper = CLIGoogleMapsScraper()
     
     try:
-        # Get user input
-        query, max_results = get_user_input()
+        # Get user input, which now returns a list of queries
+        queries, max_results = scraper.get_user_input()
         
         # Start scraping
         print("\n🚀 STARTING LEAD COLLECTION")
-        print("-" * 30)
         
-        success = scraper.search_businesses(query, max_results)
+        success = scraper.search_businesses(queries, max_results)
         
         if success:
-            print(f"🎉 SUCCESS! Collected {len(scraper.scraped_data)} business leads")
+            print(f"\n🎉 SUCCESS! Collected {len(scraper.scraped_data)} unique business leads.")
             
             export_choice = input("\n📥 Export data? (Y/n): ").strip().lower()
             if export_choice != 'n':

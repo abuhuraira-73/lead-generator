@@ -67,6 +67,17 @@ Alternatively, you can type a full custom query like `hardware stores in Brookly
 
 
 
+## 🇮🇳 Guided Search for India
+
+For targeted searches within India, you can use the guided menu.
+
+1.  **Start the script and choose `[1] Search within India`.**
+2.  You will be asked to either scan all major cities or select a specific state.
+3.  If you select a state, you can then choose to either scan all major cities within that state or select a specific city.
+4.  Finally, you will be prompted to enter your search term (e.g., "Hospitals", "Restaurants").
+
+This allows you to control the scope of your search from a single city to an entire state, or a broad scan across the country. The option to `[2] Search anywhere else in the world` remains available for all other queries.
+
 ## 📖 Quick Searches with Predefined Categories
 
 
