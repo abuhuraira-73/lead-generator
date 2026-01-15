@@ -29,115 +29,105 @@ class CLIGoogleMapsScraper:
         self.duplicate_tracker = {}  # Track duplicates
     
     def get_business_data(self, query):
-        """Scrape business data from Google Maps with scrolling"""
+        """
+        Scrapes data by first getting all business links from a search query,
+        then visiting each link individually to extract detailed information.
+        A visible Chrome window will be used.
+        """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import WebDriverWait
         from selenium.webdriver.support import expected_conditions as EC
 
         import urllib.parse
 
+        # --- Part 1: Get all business links from the search results page ---
+        
         encoded_query = urllib.parse.quote(query)
-        # Use a standard search URL, not the API one
         url = f"https://www.google.com/maps/search/{encoded_query}"
 
         options = webdriver.ChromeOptions()
-        options.add_argument("--headless")
+        # REMOVED: options.add_argument("--headless")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
 
         driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+        print(f"Navigating to search page: {url}")
         driver.get(url)
 
+        business_links = []
         try:
-            # Wait for the main results panel to load
             wait = WebDriverWait(driver, 20)
-            # This selector may need to be updated if Google changes its layout
             results_panel_selector = 'div[role="feed"]'
             results_panel = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, results_panel_selector)))
             
-            # Auto-scrolling to load all results
+            print("Scrolling to load all business listings...")
             last_height = driver.execute_script("return arguments[0].scrollHeight", results_panel)
             while True:
                 driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight", results_panel)
-                time.sleep(3) # Wait for new results to load
+                time.sleep(3)
                 new_height = driver.execute_script("return arguments[0].scrollHeight", results_panel)
                 if new_height == last_height:
-                    break # Break if we've reached the end of the results
+                    break
                 last_height = new_height
 
+            soup = BeautifulSoup(driver.page_source, 'html.parser')
+            for result in soup.select('div[role="feed"] a[class="hfpxzc"]'):
+                link = result.get('href')
+                if link and not link.startswith('/maps/place/'):
+                    business_links.append(link)
+
         except Exception as e:
-            print(f"❌ Error waiting for results panel: {e}")
+            print(f"❌ Error during search page scraping: {e}")
             driver.quit()
             return []
 
-        soup = BeautifulSoup(driver.page_source, 'html.parser')
-        driver.quit()
+        print(f"Found {len(business_links)} potential business links.")
 
+        # --- Part 2: Visit each business link and scrape detailed data ---
+        
         scraped_businesses = []
-        # Find all business articles in the feed
-        for result in soup.select('div[role="feed"] div[role="article"]'):
-            name = result.get('aria-label', 'N/A')
-            
-            link_element = result.find('a', {'class': 'hfpxzc'})
-            google_maps_link = link_element.get('href') if link_element else 'N/A'
-            
-            # Initialize all fields
-            phone, address, rating, website = 'N/A', 'N/A', 'N/A', 'N/A'
+        for i, link in enumerate(business_links):
+            print(f"\n--- Scraping Business {i+1}/{len(business_links)} ---")
+            try:
+                print(f"Navigating to: {link}")
+                driver.get(link)
+                # Wait for a key element on the page to ensure it's loaded
+                wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'h1')))
+                time.sleep(2) # Extra wait for dynamic elements
 
-            # 1. Get the website directly if the button exists
-            website_element = result.select_one('a[data-value="Website"]')
-            if website_element:
-                website = website_element.get('href', 'N/A')
-
-            # 2. Get all text-based details from the main info block
-            # This selector targets the container holding rating, address, hours, phone etc.
-            details_container = result.select_one('div.fontBodyMedium')
-            if details_container:
-                # Use find_all to get all children, preserving structure
-                all_details_divs = details_container.find_all('div', recursive=False)
+                page_soup = BeautifulSoup(driver.page_source, 'html.parser')
                 
-                # A list to hold parts of the address
-                address_parts = []
+                name = page_soup.select_one('h1').get_text(strip=True) if page_soup.select_one('h1') else 'N/A'
+                print(f"Name: {name}")
 
-                for detail_div in all_details_divs:
-                    # Extract all text pieces separated by '·'
-                    line_texts = [text.strip() for text in detail_div.get_text(separator='·').split('·') if text.strip()]
+                # Use data-tooltip attributes for reliable extraction
+                phone_element = page_soup.find('button', {'data-tooltip': 'Copy phone number'})
+                phone = phone_element.get('aria-label', '').replace('Phone: ', '').strip() if phone_element else 'N/A'
 
-                    for text in line_texts:
-                        # Heuristic for rating
-                        if 'stars' in text or re.match(r'^\d\.\d$', text):
-                            rating = text
-                            continue
-                        
-                        # Heuristic for phone number (covers various formats)
-                        if re.search(r'(\+?\d{1,2}[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}', text):
-                            phone = text
-                            continue
+                address_element = page_soup.find('button', {'data-tooltip': 'Copy address'})
+                address = address_element.get('aria-label', '').replace('Address: ', '').strip() if address_element else 'N/A'
 
-                        # Heuristic to ignore hours or status
-                        if any(keyword in text.lower() for keyword in ['open', 'closes', 'closed']):
-                            continue
-                        
-                        # If it's none of the above, it's likely part of the address or category
-                        # We'll collect them all and join them later
-                        address_parts.append(text)
+                website_element = page_soup.find('a', {'data-tooltip': 'Open website'})
+                website = website_element.get('href', 'N/A') if website_element else 'N/A'
                 
-                if address_parts:
-                    # Join the collected parts to form the address, filtering out short category-like strings
-                    address = ' '.join([part for part in address_parts if len(part) > 3])
+                rating_element = page_soup.select_one('div.fontDisplayLarge')
+                rating = rating_element.get_text(strip=True) if rating_element else 'N/A'
 
+                business_data = {
+                    "name": name,
+                    "phone": phone,
+                    "address": address,
+                    "rating": rating,
+                    "website": website,
+                    "google_maps_link": link
+                }
+                scraped_businesses.append(business_data)
 
-            business_data = {
-                "name": name,
-                "phone": phone,
-                "address": address,
-                "rating": rating,
-                "website": website,
-                "google_maps_link": google_maps_link
-            }
-            scraped_businesses.append(business_data)
+            except Exception as e:
+                print(f"❌ Could not scrape {link}. Error: {e}")
 
+        driver.quit()
         return scraped_businesses
     
     def get_expanded_queries(self, query):
